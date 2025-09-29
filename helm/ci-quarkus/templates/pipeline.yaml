@@ -1,0 +1,80 @@
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: quarkus-ci
+  namespace: {{ .Values.namespace }}
+spec:
+  params:
+    - name: APP_REPO
+      default: {{ .Values.appRepo | quote }}
+    - name: APP_REVISION
+      default: {{ .Values.appRevision | quote }}
+    - name: IMAGE_REPO
+      default: {{ .Values.imageRepo | quote }}
+    - name: GITOPS_REPO
+      default: {{ .Values.gitopsRepo | quote }}
+    - name: CHART_PATH
+      default: {{ .Values.chartPath | quote }}
+  workspaces:
+    - name: shared
+    - name: gitops-creds
+    - name: registry-auth
+  tasks:
+    - name: fetch
+      taskRef: { kind: ClusterTask, name: git-clone }
+      params:
+        - name: url
+          value: $(params.APP_REPO)
+        - name: revision
+          value: $(params.APP_REVISION)
+      workspaces:
+        - name: output
+          workspace: shared
+
+    - name: mvn-build
+      runAfter: [fetch]
+      taskRef: { kind: ClusterTask, name: maven }
+      params:
+        - name: GOALS
+          value:
+            - -DskipTests
+            - package
+      workspaces:
+        - name: source
+          workspace: shared
+        - name: maven-settings
+          workspace: shared
+
+    - name: build-push
+      runAfter: [mvn-build]
+      taskRef: { kind: ClusterTask, name: buildah }
+      params:
+        - name: IMAGE
+          value: $(params.IMAGE_REPO):$(tasks.fetch.results.commit)
+        - name: DOCKERFILE
+          value: ./Dockerfile
+        - name: CONTEXT
+          value: .
+        - name: TLSVERIFY
+          value: {{ .Values.tlsVerify | quote }}
+      workspaces:
+        - name: source
+          workspace: shared
+        - name: dockerconfig
+          workspace: registry-auth
+
+    - name: bump-gitops
+      runAfter: [build-push]
+      taskRef: { name: bump-image-tag }
+      params:
+        - name: GITOPS_REPO
+          value: $(params.GITOPS_REPO)
+        - name: CHART_PATH
+          value: $(params.CHART_PATH)
+        - name: IMAGE_REPO
+          value: $(params.IMAGE_REPO)
+        - name: NEW_TAG
+          value: $(tasks.fetch.results.commit)
+      workspaces:
+        - name: creds
+          workspace: gitops-creds

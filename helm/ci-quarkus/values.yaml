@@ -1,0 +1,19 @@
+namespace: quarkus-dev
+
+appRepo: https://github.com/NateLove/quarkus-openshift.git
+appRevision: main
+
+gitopsRepo: https://github.com/NateLove/quarkus-openshift-gitops.git
+chartPath: helm/quarkus-app
+
+imageRepo: image-registry.openshift-image-registry.svc:5000/quarkus-dev/quarkus-openshift
+tlsVerify: "false"   # buildah TLSVERIFY param; internal registry often needs "false" in labs
+
+# Name of Secret that holds ~/.git-credentials for pushing to GitOps repo
+gitopsCredentialsSecret: gitops-credentials
+
+eventListenerName: quarkus-listener
+route:
+  enabled: true
+  name: el-quarkus-listener
+  termination: edge
