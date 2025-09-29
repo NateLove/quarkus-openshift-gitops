@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quarkus-app
+  labels:
+    app: quarkus-app
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: quarkus-app
+  template:
+    metadata:
+      labels:
+        app: quarkus-app
+    spec:
+      containers:
+      - name: quarkus
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.containerPort }}
+        env:
+{{- if .Values.env }}
+{{ toYaml .Values.env | indent 8 }}
+{{- else }}
+        - name: QUARKUS_HTTP_HOST
+          value: "0.0.0.0"
+{{- end }}
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
