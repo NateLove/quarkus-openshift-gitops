@@ -20,20 +20,37 @@ spec:
     - name: gitops-creds
     - name: registry-auth
   tasks:
-    - name: fetch
-      taskRef: { kind: ClusterTask, name: git-clone }
+    - name: clone
+      resolver: cluster
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: git-clone
+          - name: namespace
+            value: openshift-pipelines
       params:
-        - name: url
+        - name: URL
           value: $(params.APP_REPO)
-        - name: revision
+        - name: REVISION
           value: $(params.APP_REVISION)
       workspaces:
         - name: output
           workspace: shared
 
     - name: mvn-build
-      runAfter: [fetch]
-      taskRef: { kind: ClusterTask, name: maven }
+      runAfter: [clone]
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: jib-maven
+          - name: namespace
+            value: openshift-pipelines
       params:
         - name: GOALS
           value:
@@ -47,7 +64,15 @@ spec:
 
     - name: build-push
       runAfter: [mvn-build]
-      taskRef: { kind: ClusterTask, name: buildah }
+      taskRef:
+        resolver: cluster
+        params:
+          - name: kind
+            value: task
+          - name: name
+            value: buildah
+          - name: namespace
+            value: openshift-pipelines
       params:
         - name: IMAGE
           value: $(params.IMAGE_REPO):$(tasks.fetch.results.commit)
@@ -62,19 +87,3 @@ spec:
           workspace: shared
         - name: dockerconfig
           workspace: registry-auth
-
-    - name: bump-gitops
-      runAfter: [build-push]
-      taskRef: { name: bump-image-tag }
-      params:
-        - name: GITOPS_REPO
-          value: $(params.GITOPS_REPO)
-        - name: CHART_PATH
-          value: $(params.CHART_PATH)
-        - name: IMAGE_REPO
-          value: $(params.IMAGE_REPO)
-        - name: NEW_TAG
-          value: $(tasks.fetch.results.commit)
-      workspaces:
-        - name: creds
-          workspace: gitops-creds
