@@ -77,7 +77,7 @@ spec:
             value: openshift-pipelines
       params:
         - name: IMAGE
-          value: $(params.IMAGE_REPO):$(tasks.clone.results.commit)
+          value: $(params.IMAGE_REPO):$(tasks.clone.results.COMMIT)
         - name: DOCKERFILE
           value: ./Dockerfile
         - name: CONTEXT
