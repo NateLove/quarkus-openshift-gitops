@@ -61,8 +61,6 @@ spec:
       workspaces:
         - name: source
           workspace: shared
-        - name: maven-settings
-          workspace: shared
 
     - name: build-push
       runAfter: [mvn-build]
@@ -87,5 +85,3 @@ spec:
       workspaces:
         - name: source
           workspace: shared
-        - name: dockerconfig
-          workspace: registry-auth
