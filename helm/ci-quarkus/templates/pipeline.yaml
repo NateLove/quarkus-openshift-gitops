@@ -17,8 +17,6 @@ spec:
       default: {{ .Values.chartPath | quote }}
   workspaces:
     - name: shared
-    - name: gitops-creds
-    - name: registry-auth
   tasks:
     - name: clone
       resolver: cluster
