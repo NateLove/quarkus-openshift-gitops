@@ -23,11 +23,12 @@ spec:
     - name: clone
       resolver: cluster
       taskRef:
-        name: git-clone
         resolver: cluster
         params:
           - name: kind
             value: task
+          - name: name
+            value: git-clone
           - name: namespace
             value: openshift-pipelines
       params:
@@ -42,11 +43,12 @@ spec:
     - name: mvn-build
       runAfter: [clone]
       taskRef:
-        name: jib-maven
         resolver: cluster
         params:
           - name: kind
             value: task
+          - name: name
+            value: jib-maven
           - name: namespace
             value: openshift-pipelines
       params:
@@ -65,11 +67,12 @@ spec:
     - name: build-push
       runAfter: [mvn-build]
       taskRef:
-        name: buildah
         resolver: cluster
         params:
           - name: kind
             value: task
+          - name: name
+            value: buildah
           - name: namespace
             value: openshift-pipelines
       params:
