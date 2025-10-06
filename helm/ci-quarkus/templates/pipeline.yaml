@@ -37,7 +37,7 @@ spec:
           workspace: shared
 
     - name: maven-build-and-push
-      runAfter: [clone]
+      runAfter: [git-clone]
       taskRef:
         kind: Task
         name: maven
