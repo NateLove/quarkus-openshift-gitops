@@ -26,14 +26,14 @@ spec:
     - name: git-clone
       taskRef:
         kind: Task
-        name: git-clone<-- resolve Task from THIS namespace
+        name: git-clone
       params:
         - name: URL
           value: $(params.APP_REPO)
         - name: REVISION
           value: $(params.APP_REVISION)
       workspaces:
-        - name: output               # git-clone expects 'output'
+        - name: output
           workspace: shared
 
     - name: maven-build-and-push
@@ -52,7 +52,7 @@ spec:
         - name: MAVEN_IMAGE
           value: $(params.MAVEN_IMAGE)
       workspaces:
-        - name: source               # maven Task expects 'source'
+        - name: source
           workspace: shared
-        - name: maven-settings       # optional in that Task; safe to wire a cache
+        - name: maven-settings
           workspace: maven-cache
