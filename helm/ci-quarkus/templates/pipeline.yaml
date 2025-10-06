@@ -23,7 +23,7 @@ spec:
       optional: true
 
   tasks:
-    - name: clone
+    - name: git-clone
       taskRef:
         kind: Task
         name: git-clone<-- resolve Task from THIS namespace
