@@ -19,8 +19,6 @@ spec:
       default: registry.access.redhat.com/ubi9/openjdk-21:latest
   workspaces:
     - name: shared
-    - name: maven-cache
-      optional: true
 
   tasks:
     - name: git-clone
@@ -54,5 +52,4 @@ spec:
       workspaces:
         - name: source
           workspace: shared
-        - name: maven-settings
-          workspace: maven-cache
+
