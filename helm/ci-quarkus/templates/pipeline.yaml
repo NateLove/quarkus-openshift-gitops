@@ -19,41 +19,41 @@ spec:
       default: registry.access.redhat.com/ubi9/openjdk-21:latest
   workspaces:
     - name: shared
-    # (optional) speed up builds by caching the local ~/.m2 repo between tasks/runs
     - name: maven-cache
       optional: true
 
   tasks:
     - name: clone
       taskRef:
+        resolver: cluster
         params:
           - name: kind
             value: task
           - name: name
             value: git-clone
           - name: namespace
-            value: openshift-pipelines
+            value: quarkus-dev      # <-- resolve Task from THIS namespace
       params:
         - name: URL
           value: $(params.APP_REPO)
         - name: REVISION
           value: $(params.APP_REVISION)
       workspaces:
-        - name: output              # git-clone expects 'output'
+        - name: output               # git-clone expects 'output'
           workspace: shared
 
     - name: maven-build-and-push
       runAfter: [clone]
       taskRef:
+        resolver: cluster
         params:
           - name: kind
             value: task
           - name: name
-            value: maven          # generic Maven ClusterTask
+            value: maven
           - name: namespace
-            value: openshift-pipelines
+            value: quarkus-dev
       params:
-        # Quarkus drives the image build via its container-image-jib extension
         - name: GOALS
           value:
             - -DskipTests
@@ -64,7 +64,7 @@ spec:
         - name: MAVEN_IMAGE
           value: $(params.MAVEN_IMAGE)
       workspaces:
-        - name: source             # 'maven' task expects 'source'
+        - name: source               # maven Task expects 'source'
           workspace: shared
-        - name: maven-settings     # optional in ClusterTask; safe to omit
+        - name: maven-settings       # optional in that Task; safe to wire a cache
           workspace: maven-cache
