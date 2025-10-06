@@ -35,7 +35,7 @@ spec:
         - name: REVISION
           value: $(params.APP_REVISION)
       workspaces:
-        - name: output
+        - name: source
           workspace: shared
 
     - name: mvn-build
