@@ -2,24 +2,32 @@ apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
   name: quarkus-ci
-  namespace: {{ .Values.namespace }}
+  namespace: quarkus-dev
+  labels:
+    app.kubernetes.io/instance: quarkus-ci
 spec:
   params:
     - name: APP_REPO
-      default: {{ .Values.appRepo | quote }}
+      type: string
+      default: https://github.com/NateLove/quarkus-openshift.git
     - name: APP_REVISION
-      default: {{ .Values.appRevision | quote }}
+      type: string
+      default: main
     - name: IMAGE_REPO
-      default: {{ .Values.imageRepo | quote }}
+      type: string
+      default: image-registry.openshift-image-registry.svc:5000/quarkus-dev/quarkus-openshift
     - name: GITOPS_REPO
-      default: {{ .Values.gitopsRepo | quote }}
+      type: string
+      default: https://github.com/NateLove/quarkus-openshift-gitops.git
     - name: CHART_PATH
-      default: {{ .Values.chartPath | quote }}
+      type: string
+      default: helm/quarkus-app
+
   workspaces:
     - name: shared
+
   tasks:
     - name: clone
-      resolver: cluster
       taskRef:
         resolver: cluster
         params:
@@ -35,7 +43,7 @@ spec:
         - name: REVISION
           value: $(params.APP_REVISION)
       workspaces:
-        - name: source
+        - name: output        # git-clone expects this
           workspace: shared
 
     - name: mvn-build
@@ -59,7 +67,7 @@ spec:
         - name: MAVEN_IMAGE
           value: registry.access.redhat.com/ubi9/openjdk-21:latest
       workspaces:
-        - name: source
+        - name: source        # jib-maven expects this
           workspace: shared
 
     - name: build-push
@@ -81,7 +89,7 @@ spec:
         - name: CONTEXT
           value: .
         - name: TLSVERIFY
-          value: {{ .Values.tlsVerify | quote }}
+          value: "false"
       workspaces:
         - name: source
           workspace: shared
