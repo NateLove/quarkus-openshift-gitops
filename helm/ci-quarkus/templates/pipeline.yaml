@@ -3,9 +3,7 @@ kind: Pipeline
 metadata:
   name: quarkus-ci
   namespace: quarkus-dev
-  labels:
-    app.kubernetes.io/instance: quarkus-ci
-spec:
+spec>
   params:
     - name: APP_REPO
       type: string
@@ -16,15 +14,14 @@ spec:
     - name: IMAGE_REPO
       type: string
       default: image-registry.openshift-image-registry.svc:5000/quarkus-dev/quarkus-openshift
-    - name: GITOPS_REPO
+    - name: MAVEN_IMAGE
       type: string
-      default: https://github.com/NateLove/quarkus-openshift-gitops.git
-    - name: CHART_PATH
-      type: string
-      default: helm/quarkus-app
-
+      default: registry.access.redhat.com/ubi9/openjdk-21:latest
   workspaces:
     - name: shared
+    # (optional) speed up builds by caching the local ~/.m2 repo between tasks/runs
+    - name: maven-cache
+      optional: true
 
   tasks:
     - name: clone
@@ -43,10 +40,10 @@ spec:
         - name: REVISION
           value: $(params.APP_REVISION)
       workspaces:
-        - name: output        # git-clone expects this
+        - name: output              # git-clone expects 'output'
           workspace: shared
 
-    - name: mvn-build
+    - name: maven-build-and-push
       runAfter: [clone]
       taskRef:
         resolver: cluster
@@ -54,42 +51,22 @@ spec:
           - name: kind
             value: task
           - name: name
-            value: jib-maven
+            value: maven          # generic Maven ClusterTask
           - name: namespace
             value: openshift-pipelines
       params:
+        # Quarkus drives the image build via its container-image-jib extension
         - name: GOALS
           value:
             - -DskipTests
+            - -Dquarkus.container-image.build=true
+            - -Dquarkus.container-image.push=true
+            - -Dquarkus.container-image.image=$(params.IMAGE_REPO):$(tasks.clone.results.COMMIT)
             - package
-        - name: IMAGE
-          value: quarkus-dev
         - name: MAVEN_IMAGE
-          value: registry.access.redhat.com/ubi9/openjdk-21:latest
+          value: $(params.MAVEN_IMAGE)
       workspaces:
-        - name: source        # jib-maven expects this
+        - name: source             # 'maven' task expects 'source'
           workspace: shared
-
-    - name: build-push
-      runAfter: [mvn-build]
-      taskRef:
-        resolver: cluster
-        params:
-          - name: kind
-            value: task
-          - name: name
-            value: buildah
-          - name: namespace
-            value: openshift-pipelines
-      params:
-        - name: IMAGE
-          value: $(params.IMAGE_REPO):$(tasks.clone.results.COMMIT)
-        - name: DOCKERFILE
-          value: ./Dockerfile
-        - name: CONTEXT
-          value: .
-        - name: TLSVERIFY
-          value: "false"
-      workspaces:
-        - name: source
-          workspace: shared
+        - name: maven-settings     # optional in ClusterTask; safe to omit
+          workspace: maven-cache
