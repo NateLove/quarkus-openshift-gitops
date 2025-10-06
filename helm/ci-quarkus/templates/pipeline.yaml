@@ -47,7 +47,7 @@ spec:
             - -DskipTests
             - -Dquarkus.container-image.build=true
             - -Dquarkus.container-image.push=true
-            - -Dquarkus.container-image.image=$(params.IMAGE_REPO):$(tasks.clone.results.COMMIT)
+            - -Dquarkus.container-image.image=$(params.IMAGE_REPO):$(tasks.git-clone.results.COMMIT)
             - package
         - name: MAVEN_IMAGE
           value: $(params.MAVEN_IMAGE)
