@@ -28,7 +28,7 @@ spec:
         kind: Task
         name: git-clone
       params:
-        - name: URL
+        - name: url
           value: $(params.APP_REPO)
         - name: REVISION
           value: $(params.APP_REVISION)
