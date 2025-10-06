@@ -26,7 +26,6 @@ spec:
   tasks:
     - name: clone
       taskRef:
-        resolver: cluster
         params:
           - name: kind
             value: task
@@ -46,7 +45,6 @@ spec:
     - name: maven-build-and-push
       runAfter: [clone]
       taskRef:
-        resolver: cluster
         params:
           - name: kind
             value: task
