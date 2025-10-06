@@ -25,14 +25,8 @@ spec:
   tasks:
     - name: clone
       taskRef:
-        resolver: cluster
-        params:
-          - name: kind
-            value: task
-          - name: name
-            value: git-clone
-          - name: namespace
-            value: quarkus-dev      # <-- resolve Task from THIS namespace
+        kind: Task
+        name: git-clone<-- resolve Task from THIS namespace
       params:
         - name: URL
           value: $(params.APP_REPO)
@@ -45,14 +39,8 @@ spec:
     - name: maven-build-and-push
       runAfter: [clone]
       taskRef:
-        resolver: cluster
-        params:
-          - name: kind
-            value: task
-          - name: name
-            value: maven
-          - name: namespace
-            value: quarkus-dev
+        kind: Task
+        name: maven
       params:
         - name: GOALS
           value:
