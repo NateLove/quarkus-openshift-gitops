@@ -3,7 +3,7 @@ kind: Pipeline
 metadata:
   name: quarkus-ci
   namespace: quarkus-dev
-spec>
+spec:
   params:
     - name: APP_REPO
       type: string
