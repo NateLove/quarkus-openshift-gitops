@@ -51,8 +51,6 @@ spec:
             - package
         - name: MAVEN_IMAGE
           value: $(params.MAVEN_IMAGE)
-        - name: CONTEXT_DIR
-          value: /../output
       workspaces:
         - name: source
           workspace: shared
