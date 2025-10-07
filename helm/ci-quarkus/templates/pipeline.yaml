@@ -20,6 +20,7 @@ spec:
   workspaces:
     - name: shared
     - name: maven-settings
+    - name: maven-local-repo
 
   tasks:
     - name: git-clone
@@ -55,4 +56,6 @@ spec:
           workspace: shared
         - name: maven-settings
           workspace: maven-settings
+        - name: maven-local-repo
+          workspace: maven-local-repo
 
