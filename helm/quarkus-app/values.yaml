@@ -1,6 +1,6 @@
 image:
   repository: image-registry.openshift-image-registry.svc:5000/quarkus-dev/quarkus-openshift
-  tag: latest
+  tag: 6e44e6177bbb6fd10c9ac4f4c391306342ffd2d2
   pullPolicy: IfNotPresent
 
 replicaCount: 1
