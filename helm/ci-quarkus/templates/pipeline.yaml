@@ -33,7 +33,7 @@ spec:
         - name: REVISION
           value: $(params.APP_REVISION)
       workspaces:
-        - name: source
+        - name: output
           workspace: shared
 
     - name: maven-build-and-push
@@ -51,6 +51,8 @@ spec:
             - package
         - name: MAVEN_IMAGE
           value: $(params.MAVEN_IMAGE)
+        - name: CONTEXT_DIR
+          value: /workspace/output/
       workspaces:
         - name: source
           workspace: shared
