@@ -18,7 +18,7 @@ spec:
       type: string
       default: registry.access.redhat.com/ubi9/openjdk-21:latest
   workspaces:
-    - name: source
+    - name: shared
     - name: maven-settings
     - name: maven-local-repo
 
