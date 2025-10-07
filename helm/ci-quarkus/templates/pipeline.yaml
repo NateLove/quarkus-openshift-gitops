@@ -48,10 +48,7 @@ spec:
             - -Dquarkus.container-image.build=true
             - -Dquarkus.container-image.push=true
             - -Dquarkus.container-image.insecure=true
-            - -Dquarkus.container-image.registry=image-registry.openshift-image-registry.svc.cluster.local:5000
-            - -Dquarkus.container-image.group=quarkus-dev
-            - -Dquarkus.container-image.name=quarkus-openshift
-            - -Dquarkus.container-image.tag=$(tasks.git-clone.results.commit)
+            - -Dquarkus.container-image.image=image-registry.openshift-image-registry.svc:5000/quarkus-dev/quarkus-openshift:$(tasks.git-clone.results.commit)
             - package
         - name: MAVEN_IMAGE
           value: $(params.MAVEN_IMAGE)
