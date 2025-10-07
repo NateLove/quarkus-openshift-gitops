@@ -53,4 +53,6 @@ spec:
       workspaces:
         - name: source
           workspace: shared
+        - name: maven-settings
+          workspace: maven-settings
 
